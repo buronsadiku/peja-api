@@ -3,12 +3,12 @@ import {
   uuid,
   text,
   timestamp,
-  date,
   boolean,
   uniqueIndex,
   index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { festivalDays } from './festival-days.js';
 
 export const registrations = pgTable(
   'registrations',
@@ -19,7 +19,9 @@ export const registrations = pgTable(
     email: text('email').notNull(),
     fullName: text('full_name').notNull(),
     phone: text('phone').notNull(),
-    date: date('date').notNull(),
+    festivalDayId: uuid('festival_day_id')
+      .notNull()
+      .references(() => festivalDays.id, { onDelete: 'restrict' }),
     responsibilityAccepted: boolean('responsibility_accepted').notNull(),
     notifyIfAbsent: boolean('notify_if_absent').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -27,9 +29,12 @@ export const registrations = pgTable(
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex('uniq_registrations_email_date').on(table.email, table.date),
+    uniqueIndex('uniq_registrations_email_day').on(
+      table.email,
+      table.festivalDayId,
+    ),
     index('idx_registrations_email').on(table.email),
-    index('idx_registrations_date').on(table.date),
+    index('idx_registrations_festival_day').on(table.festivalDayId),
   ],
 );
 

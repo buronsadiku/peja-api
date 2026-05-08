@@ -3,13 +3,13 @@ import {
   uuid,
   text,
   timestamp,
-  date,
   time,
   integer,
   index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { activityTemplates } from './activity-templates.js';
+import { festivalDays } from './festival-days.js';
 
 export const activityOccurrences = pgTable(
   'activity_occurrences',
@@ -20,7 +20,9 @@ export const activityOccurrences = pgTable(
     templateId: uuid('template_id')
       .notNull()
       .references(() => activityTemplates.id, { onDelete: 'cascade' }),
-    date: date('date').notNull(),
+    festivalDayId: uuid('festival_day_id')
+      .notNull()
+      .references(() => festivalDays.id, { onDelete: 'restrict' }),
     startTime: time('start_time').notNull(),
     endTime: time('end_time').notNull(),
     capacity: integer('capacity').notNull().default(0),
@@ -34,7 +36,7 @@ export const activityOccurrences = pgTable(
       .defaultNow(),
   },
   (table) => [
-    index('idx_activity_occurrences_date').on(table.date),
+    index('idx_activity_occurrences_festival_day').on(table.festivalDayId),
     index('idx_activity_occurrences_template_id').on(table.templateId),
   ],
 );

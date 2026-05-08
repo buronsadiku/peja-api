@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
 import {
   activityOccurrences,
   activityTemplates,
+  festivalDays,
   registrationActivities,
 } from '../../database/schema/index.js';
 
@@ -15,7 +16,9 @@ export type ActivityListItem = {
   name: string;
   description: string | null;
   category: string;
+  festivalDayId: string;
   date: string;
+  dayLabel: string | null;
   startTime: string;
   endTime: string;
   location: string | null;
@@ -25,11 +28,18 @@ export type ActivityListItem = {
   seatsLeft: number;
 };
 
+export type FestivalDayItem = {
+  id: string;
+  date: string;
+  label: string | null;
+  sortOrder: number;
+};
+
 @Injectable()
 export class ActivitiesService {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
-  async listOccurrences(date?: string): Promise<ActivityListItem[]> {
+  async listOccurrences(festivalDayId?: string): Promise<ActivityListItem[]> {
     const seatsTakenSubquery = this.db
       .select({
         occurrenceId: registrationActivities.occurrenceId,
@@ -47,7 +57,9 @@ export class ActivitiesService {
         name: activityTemplates.name,
         description: activityTemplates.description,
         category: activityTemplates.category,
-        date: activityOccurrences.date,
+        festivalDayId: festivalDays.id,
+        date: festivalDays.date,
+        dayLabel: festivalDays.label,
         startTime: activityOccurrences.startTime,
         endTime: activityOccurrences.endTime,
         location: activityOccurrences.location,
@@ -60,12 +72,20 @@ export class ActivitiesService {
         activityTemplates,
         eq(activityTemplates.id, activityOccurrences.templateId),
       )
+      .innerJoin(
+        festivalDays,
+        eq(festivalDays.id, activityOccurrences.festivalDayId),
+      )
       .leftJoin(
         seatsTakenSubquery,
         eq(seatsTakenSubquery.occurrenceId, activityOccurrences.id),
       )
-      .where(date ? eq(activityOccurrences.date, date) : undefined)
-      .orderBy(activityOccurrences.date, activityOccurrences.startTime);
+      .where(
+        festivalDayId
+          ? eq(activityOccurrences.festivalDayId, festivalDayId)
+          : undefined,
+      )
+      .orderBy(festivalDays.sortOrder, activityOccurrences.startTime);
 
     return rows.map((r) => ({
       ...r,
@@ -73,11 +93,15 @@ export class ActivitiesService {
     }));
   }
 
-  async listFestivalDates(): Promise<string[]> {
-    const rows = await this.db
-      .selectDistinct({ date: activityOccurrences.date })
-      .from(activityOccurrences)
-      .orderBy(activityOccurrences.date);
-    return rows.map((r) => r.date);
+  async listFestivalDays(): Promise<FestivalDayItem[]> {
+    return this.db
+      .select({
+        id: festivalDays.id,
+        date: festivalDays.date,
+        label: festivalDays.label,
+        sortOrder: festivalDays.sortOrder,
+      })
+      .from(festivalDays)
+      .orderBy(asc(festivalDays.sortOrder), asc(festivalDays.date));
   }
 }

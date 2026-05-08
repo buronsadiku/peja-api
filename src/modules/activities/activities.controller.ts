@@ -6,12 +6,12 @@ export class ActivitiesController {
   constructor(private readonly activities: ActivitiesService) {}
 
   @Get()
-  async list(@Query('date') date?: string) {
-    return { data: await this.activities.listOccurrences(date) };
+  async list(@Query('festivalDayId') festivalDayId?: string) {
+    return { data: await this.activities.listOccurrences(festivalDayId) };
   }
 
-  @Get('dates')
-  async dates() {
-    return { data: await this.activities.listFestivalDates() };
+  @Get('festival-days')
+  async festivalDays() {
+    return { data: await this.activities.listFestivalDays() };
   }
 }

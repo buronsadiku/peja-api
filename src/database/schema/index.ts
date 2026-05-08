@@ -1,3 +1,4 @@
+export * from './festival-days.js';
 export * from './activity-templates.js';
 export * from './activity-occurrences.js';
 export * from './registrations.js';

@@ -11,6 +11,7 @@ import type { DrizzleDB } from '../../database/database.types.js';
 import {
   activityOccurrences,
   activityTemplates,
+  festivalDays,
   registrationActivities,
   registrations,
 } from '../../database/schema/index.js';
@@ -19,6 +20,7 @@ import type { CreateRegistrationDto } from './registrations.dto.js';
 
 type OccurrenceWithTemplate = {
   id: string;
+  festivalDayId: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -38,10 +40,14 @@ export class RegistrationsService {
   ) {}
 
   async create(dto: CreateRegistrationDto) {
-    await this.assertNotAlreadyRegistered(dto.email, dto.date);
+    await this.assertNotAlreadyRegistered(dto.email, dto.festivalDayId);
 
     const occurrences = await this.fetchOccurrences(dto.occurrenceIds);
-    this.assertAllOccurrencesOnDate(occurrences, dto.occurrenceIds, dto.date);
+    this.assertAllOccurrencesOnDay(
+      occurrences,
+      dto.occurrenceIds,
+      dto.festivalDayId,
+    );
     this.assertNoOverlap(occurrences);
 
     return this.db.transaction(async (tx) => {
@@ -53,7 +59,7 @@ export class RegistrationsService {
           email: dto.email,
           fullName: dto.fullName,
           phone: dto.phone,
-          date: dto.date,
+          festivalDayId: dto.festivalDayId,
           responsibilityAccepted: dto.responsibilityAccepted,
           notifyIfAbsent: dto.notifyIfAbsent,
         })
@@ -66,10 +72,12 @@ export class RegistrationsService {
         })),
       );
 
+      const date = occurrences[0]?.date ?? '';
+
       await this.email.sendRegistrationConfirmation({
         to: created.email,
         name: created.fullName,
-        date: created.date,
+        date,
         activities: occurrences.map((o) => ({
           name: o.templateName,
           startTime: o.startTime,
@@ -82,7 +90,8 @@ export class RegistrationsService {
       return {
         id: created.id,
         email: created.email,
-        date: created.date,
+        date,
+        festivalDayId: created.festivalDayId,
         activities: occurrences.map((o) => o.templateName),
       };
     });
@@ -102,17 +111,25 @@ export class RegistrationsService {
     return row ?? null;
   }
 
-  private async assertNotAlreadyRegistered(email: string, date: string) {
+  private async assertNotAlreadyRegistered(
+    email: string,
+    festivalDayId: string,
+  ) {
     const [existing] = await this.db
       .select({ id: registrations.id })
       .from(registrations)
-      .where(and(eq(registrations.email, email), eq(registrations.date, date)))
+      .where(
+        and(
+          eq(registrations.email, email),
+          eq(registrations.festivalDayId, festivalDayId),
+        ),
+      )
       .limit(1);
 
     if (existing) {
       throw new ConflictException({
         code: 'already_registered',
-        message: `email already registered for ${date}`,
+        message: `email already registered for this festival day`,
       });
     }
   }
@@ -124,7 +141,8 @@ export class RegistrationsService {
     const rows = await this.db
       .select({
         id: activityOccurrences.id,
-        date: activityOccurrences.date,
+        festivalDayId: activityOccurrences.festivalDayId,
+        date: festivalDays.date,
         startTime: activityOccurrences.startTime,
         endTime: activityOccurrences.endTime,
         location: activityOccurrences.location,
@@ -137,14 +155,18 @@ export class RegistrationsService {
         activityTemplates,
         eq(activityTemplates.id, activityOccurrences.templateId),
       )
+      .innerJoin(
+        festivalDays,
+        eq(festivalDays.id, activityOccurrences.festivalDayId),
+      )
       .where(inArray(activityOccurrences.id, ids));
     return rows;
   }
 
-  private assertAllOccurrencesOnDate(
+  private assertAllOccurrencesOnDay(
     occurrences: OccurrenceWithTemplate[],
     requestedIds: string[],
-    date: string,
+    festivalDayId: string,
   ) {
     if (occurrences.length !== requestedIds.length) {
       throw new UnprocessableEntityException({
@@ -152,11 +174,13 @@ export class RegistrationsService {
         message: 'one or more activity ids do not exist',
       });
     }
-    const wrongDay = occurrences.find((o) => o.date !== date);
+    const wrongDay = occurrences.find(
+      (o) => o.festivalDayId !== festivalDayId,
+    );
     if (wrongDay) {
       throw new UnprocessableEntityException({
-        code: 'wrong_date',
-        message: `activity "${wrongDay.templateName}" is not on ${date}`,
+        code: 'wrong_day',
+        message: `activity "${wrongDay.templateName}" is not on the selected day`,
       });
     }
   }

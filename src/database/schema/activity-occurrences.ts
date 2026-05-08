@@ -5,6 +5,7 @@ import {
   timestamp,
   time,
   integer,
+  numeric,
   index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
@@ -28,6 +29,9 @@ export const activityOccurrences = pgTable(
     capacity: integer('capacity').notNull().default(0),
     location: text('location'),
     meetingPoint: text('meeting_point'),
+    address: text('address'),
+    latitude: numeric('latitude', { precision: 10, scale: 7 }),
+    longitude: numeric('longitude', { precision: 10, scale: 7 }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

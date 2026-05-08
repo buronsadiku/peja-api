@@ -7,6 +7,8 @@ import { DatabaseModule } from './database/database.module.js';
 import { ActivitiesModule } from './modules/activities/activities.module.js';
 import { RegistrationsModule } from './modules/registrations/registrations.module.js';
 import { GalleryModule } from './modules/gallery/gallery.module.js';
+import { NewsModule } from './modules/news/news.module.js';
+import { SponsorsModule } from './modules/sponsors/sponsors.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 
 @Module({
@@ -36,6 +38,8 @@ import { EmailModule } from './modules/email/email.module.js';
     ActivitiesModule,
     RegistrationsModule,
     GalleryModule,
+    NewsModule,
+    SponsorsModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
   ],
 })

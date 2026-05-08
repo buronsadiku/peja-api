@@ -1,8 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { asc, eq, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
 import {
+  activityImages,
   activityOccurrences,
   activityTemplates,
   festivalDays,
@@ -16,6 +17,7 @@ export type ActivityListItem = {
   name: string;
   description: string | null;
   category: string;
+  coverImageUrl: string | null;
   festivalDayId: string;
   date: string;
   dayLabel: string | null;
@@ -23,6 +25,9 @@ export type ActivityListItem = {
   endTime: string;
   location: string | null;
   meetingPoint: string | null;
+  address: string | null;
+  latitude: string | null;
+  longitude: string | null;
   capacity: number;
   seatsTaken: number;
   seatsLeft: number;
@@ -33,6 +38,25 @@ export type FestivalDayItem = {
   date: string;
   label: string | null;
   sortOrder: number;
+};
+
+export type ActivityImageItem = {
+  id: string;
+  url: string;
+  alt: string;
+  sortOrder: number;
+  isCover: boolean;
+};
+
+export type ActivityDetail = {
+  templateId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  category: string;
+  coverImageUrl: string | null;
+  images: ActivityImageItem[];
+  occurrences: ActivityListItem[];
 };
 
 @Injectable()
@@ -49,6 +73,17 @@ export class ActivitiesService {
       .groupBy(registrationActivities.occurrenceId)
       .as('seats');
 
+    const coverImageSubquery = this.db
+      .select({
+        templateId: activityImages.templateId,
+        url: sql<string>`(ARRAY_AGG(${activityImages.url} ORDER BY ${activityImages.isCover} DESC, ${activityImages.sortOrder}))[1]`.as(
+          'cover_url',
+        ),
+      })
+      .from(activityImages)
+      .groupBy(activityImages.templateId)
+      .as('cover');
+
     const rows = await this.db
       .select({
         occurrenceId: activityOccurrences.id,
@@ -57,6 +92,7 @@ export class ActivitiesService {
         name: activityTemplates.name,
         description: activityTemplates.description,
         category: activityTemplates.category,
+        coverImageUrl: coverImageSubquery.url,
         festivalDayId: festivalDays.id,
         date: festivalDays.date,
         dayLabel: festivalDays.label,
@@ -64,6 +100,9 @@ export class ActivitiesService {
         endTime: activityOccurrences.endTime,
         location: activityOccurrences.location,
         meetingPoint: activityOccurrences.meetingPoint,
+        address: activityOccurrences.address,
+        latitude: activityOccurrences.latitude,
+        longitude: activityOccurrences.longitude,
         capacity: activityOccurrences.capacity,
         seatsTaken: sql<number>`COALESCE(${seatsTakenSubquery.count}, 0)::int`,
       })
@@ -80,6 +119,10 @@ export class ActivitiesService {
         seatsTakenSubquery,
         eq(seatsTakenSubquery.occurrenceId, activityOccurrences.id),
       )
+      .leftJoin(
+        coverImageSubquery,
+        eq(coverImageSubquery.templateId, activityTemplates.id),
+      )
       .where(
         festivalDayId
           ? eq(activityOccurrences.festivalDayId, festivalDayId)
@@ -91,6 +134,52 @@ export class ActivitiesService {
       ...r,
       seatsLeft: Math.max(0, r.capacity - r.seatsTaken),
     }));
+  }
+
+  async getBySlug(slug: string): Promise<ActivityDetail> {
+    const [template] = await this.db
+      .select()
+      .from(activityTemplates)
+      .where(eq(activityTemplates.slug, slug))
+      .limit(1);
+
+    if (!template) {
+      throw new NotFoundException({
+        code: 'activity_not_found',
+        message: `activity "${slug}" does not exist`,
+      });
+    }
+
+    const images = await this.db
+      .select({
+        id: activityImages.id,
+        url: activityImages.url,
+        alt: activityImages.alt,
+        sortOrder: activityImages.sortOrder,
+        isCover: activityImages.isCover,
+      })
+      .from(activityImages)
+      .where(eq(activityImages.templateId, template.id))
+      .orderBy(asc(activityImages.sortOrder));
+
+    const cover =
+      images.find((i) => i.isCover) ?? images[0] ?? null;
+
+    const allOccurrences = await this.listOccurrences();
+    const occurrences = allOccurrences.filter(
+      (o) => o.templateId === template.id,
+    );
+
+    return {
+      templateId: template.id,
+      slug: template.slug,
+      name: template.name,
+      description: template.description,
+      category: template.category,
+      coverImageUrl: cover?.url ?? null,
+      images,
+      occurrences,
+    };
   }
 
   async listFestivalDays(): Promise<FestivalDayItem[]> {

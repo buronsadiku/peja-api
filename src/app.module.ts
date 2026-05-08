@@ -4,6 +4,9 @@ import { LoggerModule } from 'nestjs-pino';
 import { ThrottlerModule } from '@nestjs/throttler';
 import type { IncomingMessage } from 'http';
 import { DatabaseModule } from './database/database.module.js';
+import { ActivitiesModule } from './modules/activities/activities.module.js';
+import { RegistrationsModule } from './modules/registrations/registrations.module.js';
+import { EmailModule } from './modules/email/email.module.js';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { DatabaseModule } from './database/database.module.js';
       },
     }),
     DatabaseModule,
+    EmailModule,
+    ActivitiesModule,
+    RegistrationsModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
   ],
 })

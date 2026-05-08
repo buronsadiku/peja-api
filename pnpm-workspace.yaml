@@ -1,0 +1,8 @@
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - esbuild
+  - ffmpeg-static
+  - msgpackr-extract
+  - sharp
+  - unrs-resolver

@@ -1,0 +1,43 @@
+{
+  "welcome.subject": "Bienvenue sur Peja",
+  "welcome.body": "<h1>Bienvenue, {name} !</h1><p>Votre livre d’or est prêt à être configuré.</p>",
+
+  "purchase_confirmation.subject": "Confirmation de votre achat Peja",
+  "purchase_confirmation.body": "<h1>Achat confirmé</h1><p>Vous avez acheté l’offre <strong>{planTier}</strong> pour {amount} {currency}.</p>",
+
+  "new_message_alert.subject_one": "1 nouveau message dans votre livre d’or",
+  "new_message_alert.subject_other": "{count} nouveaux messages dans votre livre d’or",
+  "new_message_alert.body_one": "<h1>Nouveau message</h1><p>Vous avez 1 nouveau message de {names}{andOthers}.</p>",
+  "new_message_alert.body_other": "<h1>Nouveaux messages</h1><p>Vous avez {count} nouveaux messages de {names}{andOthers}.</p>",
+  "new_message_alert.and_others": " et d’autres",
+
+  "daily_digest.subject": "Récapitulatif : {count} messages hier",
+  "daily_digest.body": "<h1>Récapitulatif quotidien</h1><p>Votre livre d’or a reçu {count} messages hier.</p>",
+
+  "wedding_day_checklist.subject": "C’est le jour de votre mariage, {partnerA} & {partnerB} !",
+  "wedding_day_checklist.body": "<h1>Aide-mémoire du jour J</h1><ul><li>Installez la borne du livre d’or</li><li>Partagez le QR code avec vos invités</li><li>Profitez de cette journée !</li></ul>",
+
+  "storage_expiry_warning.subject": "Votre média expire dans {days} jours",
+  "storage_expiry_warning.body": "<h1>Stockage bientôt expiré</h1><p>Vos médias seront supprimés dans {days} jours. Passez à un forfait supérieur pour les conserver.</p>",
+
+  "storage_expired.subject": "Votre média a expiré",
+  "storage_expired.body": "<h1>Stockage expiré</h1><p>Vos médias ont été archivés. Passez à un forfait supérieur pour y accéder à nouveau.</p>",
+
+  "order_shipped.subject": "Votre {productName} a été expédié !",
+  "order_shipped.body": "<h1>Commande expédiée</h1><p>Votre <strong>{productName}</strong> est en route via {carrier}.</p><p><a href=\"{trackingUrl}\">Suivre la commande</a></p>",
+
+  "order_delivered.subject": "Votre {productName} a été livré",
+  "order_delivered.body": "<h1>Commande livrée</h1><p>Votre <strong>{productName}</strong> a été livré. Profitez-en !</p>",
+
+  "refund_confirmation.subject": "Confirmation de remboursement",
+  "refund_confirmation.body": "<h1>Remboursement effectué</h1><p>Un remboursement de {amount} {currency} a été émis sur votre moyen de paiement.</p>",
+
+  "account_deletion_confirmation.subject": "Suppression de compte initiée",
+  "account_deletion_confirmation.body": "<h1>Suppression de compte</h1><p>La suppression de votre compte a été initiée. Vous disposez de 30 jours pour annuler en vous reconnectant.</p>",
+
+  "wedding_week_reminder.subject": "Plus que {days} jours avant le mariage !",
+  "wedding_week_reminder.body": "<h1>Plus que {days} jours !</h1><p>Assurez-vous que votre livre d’or est prêt à accueillir vos invités.</p>",
+
+  "post_wedding_summary.subject": "Récapitulatif de votre livre d’or de mariage",
+  "post_wedding_summary.body": "<h1>Récapitulatif post-mariage</h1><p>Vos invités ont laissé {messageCount} messages et {photoCount} photos. Connectez-vous pour revivre ces moments.</p>"
+}

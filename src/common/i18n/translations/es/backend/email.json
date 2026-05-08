@@ -1,0 +1,43 @@
+{
+  "welcome.subject": "Te damos la bienvenida a Peja",
+  "welcome.body": "<h1>¡Bienvenido/a, {name}!</h1><p>Tu libro de firmas de boda está listo para configurarse.</p>",
+
+  "purchase_confirmation.subject": "Confirmación de tu compra en Peja",
+  "purchase_confirmation.body": "<h1>Compra confirmada</h1><p>Has adquirido el plan <strong>{planTier}</strong> por {currency} {amount}.</p>",
+
+  "new_message_alert.subject_one": "1 mensaje nuevo en tu libro de firmas",
+  "new_message_alert.subject_other": "{count} mensajes nuevos en tu libro de firmas",
+  "new_message_alert.body_one": "<h1>Nuevo mensaje</h1><p>Tienes 1 mensaje nuevo de {names}{andOthers}.</p>",
+  "new_message_alert.body_other": "<h1>Mensajes nuevos</h1><p>Tienes {count} mensajes nuevos de {names}{andOthers}.</p>",
+  "new_message_alert.and_others": " y otros",
+
+  "daily_digest.subject": "Resumen diario: {count} mensajes ayer",
+  "daily_digest.body": "<h1>Resumen diario</h1><p>Tu libro de firmas recibió {count} mensajes ayer.</p>",
+
+  "wedding_day_checklist.subject": "¡Es el día de vuestra boda, {partnerA} y {partnerB}!",
+  "wedding_day_checklist.body": "<h1>Lista para el gran día</h1><ul><li>Preparad el quiosco del libro de firmas</li><li>Compartid el código QR con los invitados</li><li>¡Disfrutad de vuestro día!</li></ul>",
+
+  "storage_expiry_warning.subject": "Tu contenido caduca en {days} días",
+  "storage_expiry_warning.body": "<h1>Almacenamiento por caducar</h1><p>Tu contenido se eliminará en {days} días. Actualiza tu plan para conservarlo.</p>",
+
+  "storage_expired.subject": "Tu contenido del libro de firmas ha caducado",
+  "storage_expired.body": "<h1>Almacenamiento caducado</h1><p>Tu contenido ha sido archivado. Actualiza tu plan para recuperar el acceso.</p>",
+
+  "order_shipped.subject": "¡Tu {productName} ha sido enviado!",
+  "order_shipped.body": "<h1>Pedido enviado</h1><p>Tu <strong>{productName}</strong> está en camino con {carrier}.</p><p><a href=\"{trackingUrl}\">Seguir el pedido</a></p>",
+
+  "order_delivered.subject": "Tu {productName} ha sido entregado",
+  "order_delivered.body": "<h1>Pedido entregado</h1><p>Tu <strong>{productName}</strong> ha sido entregado. ¡Que lo disfrutes!</p>",
+
+  "refund_confirmation.subject": "Confirmación de reembolso",
+  "refund_confirmation.body": "<h1>Reembolso procesado</h1><p>Se ha emitido un reembolso de {currency} {amount} en tu método de pago.</p>",
+
+  "account_deletion_confirmation.subject": "Eliminación de cuenta iniciada",
+  "account_deletion_confirmation.body": "<h1>Eliminación de cuenta</h1><p>La eliminación de tu cuenta se ha iniciado. Tienes 30 días para cancelarla volviendo a iniciar sesión.</p>",
+
+  "wedding_week_reminder.subject": "¡Quedan {days} días para la boda!",
+  "wedding_week_reminder.body": "<h1>¡Quedan {days} días!</h1><p>Asegúrate de que tu libro de firmas esté listo para tus invitados.</p>",
+
+  "post_wedding_summary.subject": "Resumen de tu libro de firmas de boda",
+  "post_wedding_summary.body": "<h1>Resumen post-boda</h1><p>Tus invitados dejaron {messageCount} mensajes y {photoCount} fotos. Visita tu panel para revivir los recuerdos.</p>"
+}

@@ -1,0 +1,5 @@
+{
+  "cannot_refund_status": "L'ordine non può essere rimborsato nel suo stato attuale",
+  "outside_refund_window": "Al di fuori della finestra di rimborso di 30 giorni",
+  "no_payment_provider_id": "ID provider di pagamento non trovato"
+}

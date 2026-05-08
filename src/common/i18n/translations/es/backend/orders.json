@@ -1,0 +1,5 @@
+{
+  "cannot_refund_status": "La orden no puede ser reembolsada en su estado actual",
+  "outside_refund_window": "Fuera del período de reembolso de 30 días",
+  "no_payment_provider_id": "No se encontró ID del proveedor de pago"
+}

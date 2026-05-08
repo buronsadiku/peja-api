@@ -1,0 +1,5 @@
+{
+  "cannot_refund_status": "Bestelling kan niet worden terugbetaald in de huidige status",
+  "outside_refund_window": "Buiten het 30-daagse terugbetalingsvenster",
+  "no_payment_provider_id": "Geen betalingsprovider-ID gevonden"
+}

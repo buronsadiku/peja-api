@@ -1,0 +1,43 @@
+{
+  "welcome.subject": "Welcome to Peja",
+  "welcome.body": "<h1>Welcome, {name}!</h1><p>Your wedding guestbook is ready to set up.</p>",
+
+  "purchase_confirmation.subject": "Your Peja purchase confirmation",
+  "purchase_confirmation.body": "<h1>Purchase Confirmed</h1><p>You purchased the <strong>{planTier}</strong> plan for {currency} {amount}.</p>",
+
+  "new_message_alert.subject_one": "1 new message on your guestbook",
+  "new_message_alert.subject_other": "{count} new messages on your guestbook",
+  "new_message_alert.body_one": "<h1>New Message</h1><p>You have 1 new message from {names}{andOthers}.</p>",
+  "new_message_alert.body_other": "<h1>New Messages</h1><p>You have {count} new messages from {names}{andOthers}.</p>",
+  "new_message_alert.and_others": " and others",
+
+  "daily_digest.subject": "Daily digest: {count} messages yesterday",
+  "daily_digest.body": "<h1>Daily Digest</h1><p>Your guestbook received {count} messages yesterday.</p>",
+
+  "wedding_day_checklist.subject": "It’s your wedding day, {partnerA} & {partnerB}!",
+  "wedding_day_checklist.body": "<h1>Wedding Day Checklist</h1><ul><li>Set up your guestbook kiosk</li><li>Share the QR code with guests</li><li>Enjoy your day!</li></ul>",
+
+  "storage_expiry_warning.subject": "Your guestbook media expires in {days} days",
+  "storage_expiry_warning.body": "<h1>Storage Expiring Soon</h1><p>Your media will be deleted in {days} days. Upgrade your plan to keep it.</p>",
+
+  "storage_expired.subject": "Your guestbook media has expired",
+  "storage_expired.body": "<h1>Storage Expired</h1><p>Your media has been archived. Upgrade your plan to restore access.</p>",
+
+  "order_shipped.subject": "Your {productName} has shipped!",
+  "order_shipped.body": "<h1>Order Shipped</h1><p>Your <strong>{productName}</strong> is on its way via {carrier}.</p><p><a href=\"{trackingUrl}\">Track your order</a></p>",
+
+  "order_delivered.subject": "Your {productName} has been delivered",
+  "order_delivered.body": "<h1>Order Delivered</h1><p>Your <strong>{productName}</strong> has been delivered. Enjoy!</p>",
+
+  "refund_confirmation.subject": "Refund confirmation",
+  "refund_confirmation.body": "<h1>Refund Processed</h1><p>A refund of {currency} {amount} has been issued to your payment method.</p>",
+
+  "account_deletion_confirmation.subject": "Account deletion initiated",
+  "account_deletion_confirmation.body": "<h1>Account Deletion</h1><p>Your account deletion has been initiated. You have 30 days to cancel by signing in again.</p>",
+
+  "wedding_week_reminder.subject": "{days} days until the wedding!",
+  "wedding_week_reminder.body": "<h1>{days} Days to Go!</h1><p>Make sure your guestbook is set up and ready for your guests.</p>",
+
+  "post_wedding_summary.subject": "Your wedding guestbook summary",
+  "post_wedding_summary.body": "<h1>Post-Wedding Summary</h1><p>Your guests left {messageCount} messages and {photoCount} photos. Visit your dashboard to relive the memories.</p>"
+}

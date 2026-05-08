@@ -1,5 +1,0 @@
-{
-  "cannot_refund_status": "Order cannot be refunded in its current status",
-  "outside_refund_window": "Outside 30-day refund window",
-  "no_payment_provider_id": "No payment provider ID found"
-}

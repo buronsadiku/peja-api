@@ -6,6 +6,7 @@ import type { IncomingMessage } from 'http';
 import { DatabaseModule } from './database/database.module.js';
 import { ActivitiesModule } from './modules/activities/activities.module.js';
 import { RegistrationsModule } from './modules/registrations/registrations.module.js';
+import { GalleryModule } from './modules/gallery/gallery.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 
 @Module({
@@ -34,6 +35,7 @@ import { EmailModule } from './modules/email/email.module.js';
     EmailModule,
     ActivitiesModule,
     RegistrationsModule,
+    GalleryModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
   ],
 })

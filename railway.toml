@@ -1,6 +1,5 @@
 [build]
-builder = "nixpacks"
-buildCommand = "pnpm install --frozen-lockfile && pnpm build"
+buildCommand = "pnpm build"
 
 [deploy]
 releaseCommand = "pnpm db:migrate"

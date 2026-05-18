@@ -6,8 +6,13 @@ export class ActivitiesController {
   constructor(private readonly activities: ActivitiesService) {}
 
   @Get()
-  async list(@Query('festivalDayId') festivalDayId?: string) {
-    return { data: await this.activities.listOccurrences(festivalDayId) };
+  async list(
+    @Query('festivalDayId') festivalDayId?: string,
+    @Query('locale') locale?: string,
+  ) {
+    return {
+      data: await this.activities.listOccurrences(festivalDayId, locale),
+    };
   }
 
   @Get('festival-days')
@@ -15,8 +20,16 @@ export class ActivitiesController {
     return { data: await this.activities.listFestivalDays() };
   }
 
+  @Get('categories')
+  async categories(@Query('locale') locale?: string) {
+    return { data: await this.activities.listCategories(locale) };
+  }
+
   @Get(':slug')
-  async detail(@Param('slug') slug: string) {
-    return { data: await this.activities.getBySlug(slug) };
+  async detail(
+    @Param('slug') slug: string,
+    @Query('locale') locale?: string,
+  ) {
+    return { data: await this.activities.getBySlug(slug, locale) };
   }
 }

@@ -4,15 +4,44 @@ import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
 import { newsPosts } from '../../database/schema/index.js';
 
+type Locale = 'en' | 'sq';
+
+const pickLocale = (raw: string | undefined): Locale =>
+  raw === 'sq' ? 'sq' : 'en';
+
+const fields = (locale: Locale) => ({
+  id: newsPosts.id,
+  slug: newsPosts.slug,
+  title:
+    locale === 'sq'
+      ? sql<string>`COALESCE(${newsPosts.titleSq}, ${newsPosts.titleEn})`
+      : sql<string>`${newsPosts.titleEn}`,
+  body:
+    locale === 'sq'
+      ? sql<string>`COALESCE(${newsPosts.bodySq}, ${newsPosts.bodyEn})`
+      : sql<string>`${newsPosts.bodyEn}`,
+  imageUrl: newsPosts.imageUrl,
+  pinned: newsPosts.pinned,
+  publishedAt: newsPosts.publishedAt,
+  expiresAt: newsPosts.expiresAt,
+  createdAt: newsPosts.createdAt,
+  updatedAt: newsPosts.updatedAt,
+});
+
 @Injectable()
 export class NewsService {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
-  async list({ page = 1, limit = 20 }: { page?: number; limit?: number } = {}) {
+  async list({
+    page = 1,
+    limit = 20,
+    locale: localeInput,
+  }: { page?: number; limit?: number; locale?: string } = {}) {
     const safePage = Math.max(1, page);
     const safeLimit = Math.min(50, Math.max(1, limit));
     const offset = (safePage - 1) * safeLimit;
     const now = new Date();
+    const locale = pickLocale(localeInput);
 
     const where = and(
       sql`${newsPosts.publishedAt} <= NOW()`,
@@ -25,7 +54,7 @@ export class NewsService {
       .where(where);
 
     const data = await this.db
-      .select()
+      .select(fields(locale))
       .from(newsPosts)
       .where(where)
       .orderBy(desc(newsPosts.pinned), desc(newsPosts.publishedAt))
@@ -43,9 +72,10 @@ export class NewsService {
     };
   }
 
-  async getBySlug(slug: string) {
+  async getBySlug(slug: string, localeInput?: string) {
+    const locale = pickLocale(localeInput);
     const [row] = await this.db
-      .select()
+      .select(fields(locale))
       .from(newsPosts)
       .where(eq(newsPosts.slug, slug))
       .limit(1);

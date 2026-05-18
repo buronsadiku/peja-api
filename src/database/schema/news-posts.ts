@@ -15,8 +15,10 @@ export const newsPosts = pgTable(
       .primaryKey()
       .default(sql`gen_random_uuid()`),
     slug: text('slug').notNull().unique(),
-    title: text('title').notNull(),
-    body: text('body').notNull(),
+    titleEn: text('title_en').notNull(),
+    titleSq: text('title_sq'),
+    bodyEn: text('body_en').notNull(),
+    bodySq: text('body_sq'),
     imageUrl: text('image_url'),
     pinned: boolean('pinned').notNull().default(false),
     publishedAt: timestamp('published_at', { withTimezone: true })

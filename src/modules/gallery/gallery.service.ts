@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql, type SQL } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
 import { galleryImages } from '../../database/schema/index.js';
@@ -10,17 +10,28 @@ export type ListOptions = {
   section?: GallerySection;
   page?: number;
   limit?: number;
+  showOnLanding?: boolean;
 };
 
 @Injectable()
 export class GalleryService {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
-  async list({ section, page = 1, limit = 20 }: ListOptions = {}) {
+  async list({
+    section,
+    page = 1,
+    limit = 20,
+    showOnLanding,
+  }: ListOptions = {}) {
     const safePage = Math.max(1, page);
     const safeLimit = Math.min(100, Math.max(1, limit));
     const offset = (safePage - 1) * safeLimit;
-    const where = section ? eq(galleryImages.section, section) : undefined;
+
+    const filters: SQL[] = [];
+    if (section) filters.push(eq(galleryImages.section, section));
+    if (typeof showOnLanding === 'boolean')
+      filters.push(eq(galleryImages.showOnLanding, showOnLanding));
+    const where = filters.length ? and(...filters) : undefined;
 
     const [{ count }] = await this.db
       .select({ count: sql<number>`COUNT(*)::int` })
@@ -31,7 +42,11 @@ export class GalleryService {
       .select()
       .from(galleryImages)
       .where(where)
-      .orderBy(asc(galleryImages.section), asc(galleryImages.sortOrder))
+      .orderBy(
+        asc(galleryImages.section),
+        asc(galleryImages.sortOrder),
+        asc(galleryImages.id),
+      )
       .limit(safeLimit)
       .offset(offset);
 

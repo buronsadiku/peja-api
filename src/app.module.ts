@@ -10,6 +10,10 @@ import { GalleryModule } from './modules/gallery/gallery.module.js';
 import { NewsModule } from './modules/news/news.module.js';
 import { SponsorsModule } from './modules/sponsors/sponsors.module.js';
 import { EmailModule } from './modules/email/email.module.js';
+import { UploadsModule } from './modules/uploads/uploads.module.js';
+import { CommunitiesModule } from './modules/communities/communities.module.js';
+import { MusiciansModule } from './modules/musicians/musicians.module.js';
+import { HealthModule } from './modules/health/health.module.js';
 
 @Module({
   imports: [
@@ -40,6 +44,10 @@ import { EmailModule } from './modules/email/email.module.js';
     GalleryModule,
     NewsModule,
     SponsorsModule,
+    CommunitiesModule,
+    MusiciansModule,
+    HealthModule,
+    UploadsModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
   ],
 })

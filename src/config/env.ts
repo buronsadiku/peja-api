@@ -45,6 +45,10 @@ export const envSchema = z.object({
   OBJECT_STORAGE_SECRET_KEY: z.string().optional(),
   OBJECT_STORAGE_PUBLIC_DOMAIN: z.string().optional(),
 
+  // Shared secret used by peja-web admin upload proxy to authenticate
+  // internal calls to /v1/internal/uploads/*. Required for image upload.
+  INTERNAL_UPLOAD_TOKEN: z.string().min(16).optional(),
+
   // Transcription (OpenAI Whisper)
   OPENAI_API_KEY: z.string().optional(),
 

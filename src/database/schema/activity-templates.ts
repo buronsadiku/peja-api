@@ -3,19 +3,9 @@ import {
   uuid,
   text,
   timestamp,
-  pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-
-export const activityCategoryEnum = pgEnum('activity_category', [
-  'workshop',
-  'adventure',
-  'music',
-  'food',
-  'wellness',
-  'cultural',
-]);
 
 export const activityTemplates = pgTable(
   'activity_templates',
@@ -23,10 +13,14 @@ export const activityTemplates = pgTable(
     id: uuid('id')
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    name: text('name').notNull(),
+    nameEn: text('name_en').notNull(),
+    nameSq: text('name_sq'),
     slug: text('slug').notNull().unique(),
-    description: text('description'),
-    category: activityCategoryEnum('category').notNull().default('workshop'),
+    descriptionEn: text('description_en'),
+    descriptionSq: text('description_sq'),
+    contactPhone1: text('contact_phone_1'),
+    contactPhone2: text('contact_phone_2'),
+    category: text('category').notNull().default('workshop'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

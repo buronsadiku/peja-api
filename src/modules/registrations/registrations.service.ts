@@ -28,6 +28,8 @@ type OccurrenceWithTemplate = {
   meetingPoint: string | null;
   capacity: number;
   templateName: string;
+  contactPhone1: string | null;
+  contactPhone2: string | null;
 };
 
 @Injectable()
@@ -84,6 +86,8 @@ export class RegistrationsService {
           endTime: o.endTime,
           location: o.location,
           meetingPoint: o.meetingPoint,
+          contactPhone1: o.contactPhone1,
+          contactPhone2: o.contactPhone2,
         })),
       });
 
@@ -148,7 +152,9 @@ export class RegistrationsService {
         location: activityOccurrences.location,
         meetingPoint: activityOccurrences.meetingPoint,
         capacity: activityOccurrences.capacity,
-        templateName: activityTemplates.name,
+        templateName: activityTemplates.nameEn,
+        contactPhone1: activityTemplates.contactPhone1,
+        contactPhone2: activityTemplates.contactPhone2,
       })
       .from(activityOccurrences)
       .innerJoin(

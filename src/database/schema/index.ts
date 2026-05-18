@@ -1,5 +1,6 @@
 export * from './festival-days.js';
 export * from './activity-templates.js';
+export * from './activity-categories.js';
 export * from './activity-occurrences.js';
 export * from './activity-images.js';
 export * from './registrations.js';
@@ -7,4 +8,6 @@ export * from './registration-activities.js';
 export * from './gallery-images.js';
 export * from './news-posts.js';
 export * from './sponsors.js';
+export * from './communities.js';
+export * from './musicians.js';
 export * from './auth.js';

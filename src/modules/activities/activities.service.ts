@@ -3,12 +3,18 @@ import { asc, eq, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
 import {
+  activityCategories,
   activityImages,
   activityOccurrences,
   activityTemplates,
   festivalDays,
   registrationActivities,
 } from '../../database/schema/index.js';
+
+export type Locale = 'en' | 'sq';
+
+const pickLocale = (raw: string | undefined): Locale =>
+  raw === 'sq' ? 'sq' : 'en';
 
 export type ActivityListItem = {
   occurrenceId: string;
@@ -40,6 +46,13 @@ export type FestivalDayItem = {
   sortOrder: number;
 };
 
+export type ActivityCategoryItem = {
+  id: string;
+  value: string;
+  label: string;
+  sortOrder: number;
+};
+
 export type ActivityImageItem = {
   id: string;
   url: string;
@@ -54,6 +67,8 @@ export type ActivityDetail = {
   name: string;
   description: string | null;
   category: string;
+  contactPhone1: string | null;
+  contactPhone2: string | null;
   coverImageUrl: string | null;
   images: ActivityImageItem[];
   occurrences: ActivityListItem[];
@@ -63,7 +78,12 @@ export type ActivityDetail = {
 export class ActivitiesService {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
-  async listOccurrences(festivalDayId?: string): Promise<ActivityListItem[]> {
+  async listOccurrences(
+    festivalDayId?: string,
+    localeInput?: string,
+  ): Promise<ActivityListItem[]> {
+    const locale = pickLocale(localeInput);
+
     const seatsTakenSubquery = this.db
       .select({
         occurrenceId: registrationActivities.occurrenceId,
@@ -84,13 +104,23 @@ export class ActivitiesService {
       .groupBy(activityImages.templateId)
       .as('cover');
 
+    const nameExpr =
+      locale === 'sq'
+        ? sql<string>`COALESCE(${activityTemplates.nameSq}, ${activityTemplates.nameEn})`
+        : sql<string>`${activityTemplates.nameEn}`;
+
+    const descriptionExpr =
+      locale === 'sq'
+        ? sql<string | null>`COALESCE(${activityTemplates.descriptionSq}, ${activityTemplates.descriptionEn})`
+        : sql<string | null>`${activityTemplates.descriptionEn}`;
+
     const rows = await this.db
       .select({
         occurrenceId: activityOccurrences.id,
         templateId: activityTemplates.id,
         slug: activityTemplates.slug,
-        name: activityTemplates.name,
-        description: activityTemplates.description,
+        name: nameExpr,
+        description: descriptionExpr,
         category: activityTemplates.category,
         coverImageUrl: coverImageSubquery.url,
         festivalDayId: festivalDays.id,
@@ -128,7 +158,7 @@ export class ActivitiesService {
           ? eq(activityOccurrences.festivalDayId, festivalDayId)
           : undefined,
       )
-      .orderBy(festivalDays.sortOrder, activityOccurrences.startTime);
+      .orderBy(asc(festivalDays.date), asc(activityOccurrences.startTime));
 
     return rows.map((r) => ({
       ...r,
@@ -136,7 +166,9 @@ export class ActivitiesService {
     }));
   }
 
-  async getBySlug(slug: string): Promise<ActivityDetail> {
+  async getBySlug(slug: string, localeInput?: string): Promise<ActivityDetail> {
+    const locale = pickLocale(localeInput);
+
     const [template] = await this.db
       .select()
       .from(activityTemplates)
@@ -162,20 +194,28 @@ export class ActivitiesService {
       .where(eq(activityImages.templateId, template.id))
       .orderBy(asc(activityImages.sortOrder));
 
-    const cover =
-      images.find((i) => i.isCover) ?? images[0] ?? null;
+    const cover = images.find((i) => i.isCover) ?? images[0] ?? null;
 
-    const allOccurrences = await this.listOccurrences();
+    const allOccurrences = await this.listOccurrences(undefined, locale);
     const occurrences = allOccurrences.filter(
       (o) => o.templateId === template.id,
     );
 
+    const name =
+      locale === 'sq' ? template.nameSq ?? template.nameEn : template.nameEn;
+    const description =
+      locale === 'sq'
+        ? template.descriptionSq ?? template.descriptionEn
+        : template.descriptionEn;
+
     return {
       templateId: template.id,
       slug: template.slug,
-      name: template.name,
-      description: template.description,
+      name,
+      description,
       category: template.category,
+      contactPhone1: template.contactPhone1,
+      contactPhone2: template.contactPhone2,
       coverImageUrl: cover?.url ?? null,
       images,
       occurrences,
@@ -191,6 +231,29 @@ export class ActivitiesService {
         sortOrder: festivalDays.sortOrder,
       })
       .from(festivalDays)
-      .orderBy(asc(festivalDays.sortOrder), asc(festivalDays.date));
+      .orderBy(asc(festivalDays.date));
+  }
+
+  async listCategories(
+    localeInput?: string,
+  ): Promise<ActivityCategoryItem[]> {
+    const locale = pickLocale(localeInput);
+    const labelExpr =
+      locale === 'sq'
+        ? sql<string>`COALESCE(${activityCategories.labelSq}, ${activityCategories.labelEn})`
+        : sql<string>`${activityCategories.labelEn}`;
+
+    return this.db
+      .select({
+        id: activityCategories.id,
+        value: activityCategories.value,
+        label: labelExpr,
+        sortOrder: activityCategories.sortOrder,
+      })
+      .from(activityCategories)
+      .orderBy(
+        asc(activityCategories.sortOrder),
+        asc(activityCategories.labelEn),
+      );
   }
 }

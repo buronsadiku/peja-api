@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  boolean,
   pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
@@ -28,6 +29,7 @@ export const galleryImages = pgTable(
     caption: text('caption'),
     section: gallerySectionEnum('section').notNull(),
     sortOrder: integer('sort_order').notNull().default(0),
+    showOnLanding: boolean('show_on_landing').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -38,6 +40,7 @@ export const galleryImages = pgTable(
   (table) => [
     index('idx_gallery_images_section').on(table.section),
     index('idx_gallery_images_sort').on(table.sortOrder),
+    index('idx_gallery_images_show_on_landing').on(table.showOnLanding),
   ],
 );
 

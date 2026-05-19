@@ -2,7 +2,6 @@
 -- activity_occurrences and registrations from `date` columns to
 -- festival_day_id FK references.
 
-BEGIN;
 
 -- 1. Create festival_days
 CREATE TABLE IF NOT EXISTS "festival_days" (
@@ -78,4 +77,3 @@ FROM (
 ) sub
 WHERE fd."id" = sub."id";
 
-COMMIT;

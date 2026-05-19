@@ -1,7 +1,6 @@
 -- Lineup musicians per festival day. Bilingual name + description, photo cover.
 -- One festival day per musician (ON DELETE RESTRICT to keep history safe).
 
-BEGIN;
 
 CREATE TABLE IF NOT EXISTS "musicians" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -21,4 +20,3 @@ CREATE INDEX IF NOT EXISTS "idx_musicians_day" ON "musicians" ("festival_day_id"
 CREATE INDEX IF NOT EXISTS "idx_musicians_sort" ON "musicians" ("sort_order");
 CREATE INDEX IF NOT EXISTS "idx_musicians_published" ON "musicians" ("is_published");
 
-COMMIT;

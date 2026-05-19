@@ -1,7 +1,6 @@
 -- Split translatable fields into per-locale columns.
 -- English required (NOT NULL). Albanian optional (nullable, falls back to English at read time).
 
-BEGIN;
 
 -- ── activity_templates: name + description ───────────────────
 ALTER TABLE "activity_templates" ADD COLUMN IF NOT EXISTS "name_en" text;
@@ -35,4 +34,3 @@ UPDATE "news_posts" SET "body_en" = COALESCE("body_en", "body");
 ALTER TABLE "news_posts" ALTER COLUMN "body_en" SET NOT NULL;
 ALTER TABLE "news_posts" DROP COLUMN IF EXISTS "body";
 
-COMMIT;

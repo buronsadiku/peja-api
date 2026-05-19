@@ -1,6 +1,5 @@
 -- Slug column for /community/<slug> detail routes.
 
-BEGIN;
 
 ALTER TABLE "communities" ADD COLUMN IF NOT EXISTS "slug" text;
 
@@ -27,4 +26,3 @@ ALTER TABLE "communities" ALTER COLUMN "slug" SET NOT NULL;
 ALTER TABLE "communities" ADD CONSTRAINT "communities_slug_unique" UNIQUE ("slug");
 CREATE INDEX IF NOT EXISTS "idx_communities_slug" ON "communities" ("slug");
 
-COMMIT;

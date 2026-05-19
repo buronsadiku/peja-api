@@ -1,7 +1,6 @@
 -- Add: activity_images, news_posts, sponsors tables.
 -- Extend: activity_occurrences with address + lat/lng.
 
-BEGIN;
 
 -- ── activity_images ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS "activity_images" (
@@ -62,4 +61,3 @@ ALTER TABLE "activity_occurrences"
 ALTER TABLE "activity_occurrences"
   ADD COLUMN IF NOT EXISTS "longitude" numeric(10, 7);
 
-COMMIT;

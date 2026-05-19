@@ -1,7 +1,6 @@
 -- Outdoor Community section: festival's community/partner cards.
 -- Bilingual description (en required, sq optional).
 
-BEGIN;
 
 CREATE TABLE IF NOT EXISTS "communities" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -16,4 +15,3 @@ CREATE TABLE IF NOT EXISTS "communities" (
 
 CREATE INDEX IF NOT EXISTS "idx_communities_sort" ON "communities" ("sort_order");
 
-COMMIT;

@@ -8,6 +8,76 @@
       "when": 1778256885784,
       "tag": "0000_lucky_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778257000000,
+      "tag": "0001_festival_days",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778257100000,
+      "tag": "0002_activity_extras_news_sponsors",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778257200000,
+      "tag": "0003_gallery_show_on_landing",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778257300000,
+      "tag": "0004_activity_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778257400000,
+      "tag": "0005_i18n_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778257500000,
+      "tag": "0006_communities",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778257600000,
+      "tag": "0007_communities_slug",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778257700000,
+      "tag": "0008_activity_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778257800000,
+      "tag": "0009_musicians",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778257900000,
+      "tag": "0010_gallery_categories",
+      "breakpoints": true
     }
   ]
 }

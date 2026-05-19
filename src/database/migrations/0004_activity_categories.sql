@@ -1,7 +1,6 @@
 -- Replace fixed activity_category enum with a dynamic activity_categories
 -- lookup table so admins can add/edit/remove categories at runtime.
 
-BEGIN;
 
 CREATE TABLE IF NOT EXISTS "activity_categories" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -30,4 +29,3 @@ ALTER TABLE "activity_templates"
 
 DROP TYPE IF EXISTS "activity_category";
 
-COMMIT;

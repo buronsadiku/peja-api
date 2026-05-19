@@ -9,7 +9,6 @@ NestJS backend for the **Peja Outdoor Festival** site. Public, read-only HTTP AP
 - Postgres 16 (local via docker-compose)
 - Pino logging (`pino-pretty` in dev)
 - Swagger at `GET /docs` in dev
-- BullMQ + Redis available in deps but not yet wired
 - Zod env validation (`src/config/env.ts`)
 
 ## Routes
@@ -64,7 +63,7 @@ FK rules:
 
 ```
 src/
-  main.ts                  boot + swagger + cors + cookie-parser
+  main.ts                  boot + swagger + cors
   app.module.ts            root: Config + Logger + Throttler + Database + features
   config/env.ts            Zod env schema
   database/
@@ -99,7 +98,7 @@ pnpm db:seed        # psql one-shot from seed-activities.sql
 
 ```bash
 cp .env.example .env
-docker-compose up -d            # postgres + redis + minio (+ bootstrap)
+docker-compose up -d            # postgres + minio (+ bootstrap)
 pnpm install
 pnpm db:migrate                 # if not AUTO_MIGRATE
 pnpm start:dev
@@ -111,11 +110,7 @@ API on `:3001`. Swagger `:3001/docs`.
 
 ```
 DATABASE_URL=postgresql://peja:peja@localhost:5432/peja
-REDIS_URL=redis://localhost:6379
 FRONTEND_BASE_URL=http://localhost:3000
-AUTH_COOKIE_SECRET=<must match peja-web>
-AUTH_HASH_PEPPER=<random 32+ bytes>
-AUTH_COOKIE_NAME=peja.session_token
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 AUTO_MIGRATE=true               # set false if migrations live elsewhere
 ```
@@ -154,7 +149,6 @@ In production set `NODE_ENV=production` in peja-web env → sign-up endpoint blo
 | Concern | Local | Prod |
 |---|---|---|
 | Postgres | docker | Neon / Railway / Supabase |
-| Redis | docker | Upstash |
 | Object storage | MinIO :9000 (`peja-uploads/public/`) | Cloudflare R2 (set `OBJECT_STORAGE_ENDPOINT`, region `auto`, custom domain or `pub-*.r2.dev`) |
 | Email | console | Resend (set `RESEND_API_KEY`, `EMAIL_FROM`) |
 | API host | `:3001` | Railway |

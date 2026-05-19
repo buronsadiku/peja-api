@@ -6,7 +6,6 @@ NestJS backend for Peja.
 
 - NestJS 11
 - Drizzle ORM (Postgres)
-- BullMQ (Redis)
 - Pino logging
 - Zod env validation
 - Swagger (`/docs` in dev)

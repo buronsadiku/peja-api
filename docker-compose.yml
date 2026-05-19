@@ -27,21 +27,6 @@ services:
       timeout: 3s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    container_name: peja-redis
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    volumes:
-      - peja-redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
   minio:
     image: minio/minio:latest
     container_name: peja-minio
@@ -82,5 +67,4 @@ services:
 
 volumes:
   peja-postgres:
-  peja-redis:
   peja-minio:

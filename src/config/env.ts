@@ -17,18 +17,6 @@ export const envSchema = z.object({
   // them as a separate Railway release step). Default: enabled.
   AUTO_MIGRATE: z.string().default('true'),
 
-  // Redis
-  REDIS_URL: z.string().url(),
-
-  // Auth — two independent secrets
-  // 1. Cookie HMAC: Better Auth signs the session cookie; NestJS verifies.
-  //    Shared between web + api by necessity (one signs, the other verifies).
-  AUTH_COOKIE_SECRET: z.string().min(32),
-  // 2. Hash pepper: HMAC-SHA256 key used to hash IP and UA before storage.
-  //    Compromise reveals nothing about the cookie or user passwords.
-  AUTH_HASH_PEPPER: z.string().min(32),
-  AUTH_COOKIE_NAME: z.string().default('peja.session_token'),
-
   // CORS
   CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
 

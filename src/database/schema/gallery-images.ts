@@ -5,17 +5,9 @@ import {
   timestamp,
   integer,
   boolean,
-  pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-
-export const gallerySectionEnum = pgEnum('gallery_section', [
-  'live',
-  'workshops',
-  'adventures',
-  'food',
-]);
 
 export const galleryImages = pgTable(
   'gallery_images',
@@ -27,7 +19,7 @@ export const galleryImages = pgTable(
     alt: text('alt').notNull(),
     title: text('title'),
     caption: text('caption'),
-    section: gallerySectionEnum('section').notNull(),
+    section: text('section').notNull(),
     sortOrder: integer('sort_order').notNull().default(0),
     showOnLanding: boolean('show_on_landing').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true })

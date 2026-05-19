@@ -12,6 +12,12 @@ const parseBool = (v?: string): boolean | undefined => {
 export class GalleryController {
   constructor(private readonly gallery: GalleryService) {}
 
+  @Get('categories')
+  async categories(@Query('locale') locale?: string) {
+    const data = await this.gallery.listCategories(locale);
+    return { data };
+  }
+
   @Get()
   async list(
     @Query('section') section?: GallerySection,

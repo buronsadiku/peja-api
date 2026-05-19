@@ -2,9 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, sql, type SQL } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.decorator.js';
 import type { DrizzleDB } from '../../database/database.types.js';
-import { galleryImages } from '../../database/schema/index.js';
+import {
+  galleryCategories,
+  galleryImages,
+} from '../../database/schema/index.js';
 
-export type GallerySection = 'live' | 'workshops' | 'adventures' | 'food';
+export type GallerySection = string;
 
 export type ListOptions = {
   section?: GallerySection;
@@ -59,5 +62,20 @@ export class GalleryService {
         totalPages: Math.max(1, Math.ceil(count / safeLimit)),
       },
     };
+  }
+
+  async listCategories(locale?: string) {
+    const rows = await this.db
+      .select()
+      .from(galleryCategories)
+      .orderBy(asc(galleryCategories.sortOrder), asc(galleryCategories.labelEn));
+
+    const useSq = locale === 'sq';
+    return rows.map((row) => ({
+      id: row.id,
+      value: row.value,
+      label: useSq && row.labelSq ? row.labelSq : row.labelEn,
+      sortOrder: row.sortOrder,
+    }));
   }
 }

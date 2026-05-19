@@ -98,7 +98,7 @@ pnpm db:seed        # psql one-shot from seed-activities.sql
 
 ```bash
 cp .env.example .env
-docker-compose up -d            # postgres + minio (+ bootstrap)
+docker-compose up -d            # postgres only (storage = Cloudinary)
 pnpm install
 pnpm db:migrate                 # if not AUTO_MIGRATE
 pnpm start:dev
@@ -115,7 +115,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 AUTO_MIGRATE=true               # set false if migrations live elsewhere
 ```
 
-Optional (skip in dev): `OBJECT_STORAGE_*`, `OPENAI_API_KEY`, `RESEND_API_KEY`, `SENTRY_*`, `POSTHOG_*`, OAuth pairs.
+Optional (skip in dev): `CLOUDINARY_*` (uploads disabled without it), `OPENAI_API_KEY`, `RESEND_API_KEY`, `SENTRY_*`, `POSTHOG_*`, OAuth pairs.
 
 ### Admin user
 
@@ -149,9 +149,9 @@ In production set `NODE_ENV=production` in peja-web env → sign-up endpoint blo
 | Concern | Local | Prod |
 |---|---|---|
 | Postgres | docker | Neon / Railway / Supabase |
-| Object storage | MinIO :9000 (`peja-uploads/public/`) | Cloudflare R2 (set `OBJECT_STORAGE_ENDPOINT`, region `auto`, custom domain or `pub-*.r2.dev`) |
+| Object storage | Cloudinary (same account dev + prod, separate folders) | Cloudinary (set `CLOUDINARY_*`) |
 | Email | console | Resend (set `RESEND_API_KEY`, `EMAIL_FROM`) |
 | API host | `:3001` | Railway |
 | DB migration | `pnpm db:migrate` | `AUTO_MIGRATE=true` on boot OR Railway release step |
 
-Cross-project isolation: prod MUST use different R2 bucket + API token than any other project sharing infra.
+Cross-project isolation: prod MUST use a different Cloudinary cloud (or root folder via `CLOUDINARY_UPLOAD_FOLDER`) than any other project sharing infra.

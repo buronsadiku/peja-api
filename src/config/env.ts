@@ -26,12 +26,12 @@ export const envSchema = z.object({
   SENTRY_DSN: z.string().optional(),
   SENTRY_ENV: z.string().optional(),
 
-  // Storage (S3-compatible: R2 in prod, MinIO locally)
-  OBJECT_STORAGE_ENDPOINT: z.string().optional(),
-  OBJECT_STORAGE_BUCKET: z.string().optional(),
-  OBJECT_STORAGE_ACCESS_KEY: z.string().optional(),
-  OBJECT_STORAGE_SECRET_KEY: z.string().optional(),
-  OBJECT_STORAGE_PUBLIC_DOMAIN: z.string().optional(),
+  // Storage (Cloudinary) — set CLOUDINARY_URL OR the three split vars.
+  CLOUDINARY_URL: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  CLOUDINARY_UPLOAD_FOLDER: z.string().default('peja'),
 
   // Shared secret used by peja-web admin upload proxy to authenticate
   // internal calls to /v1/internal/uploads/*. Required for image upload.

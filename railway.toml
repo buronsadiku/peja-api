@@ -1,9 +1,9 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm install --frozen-lockfile && pnpm build"
+buildCommand = "npm ci && npm run build"
 
 [deploy]
-releaseCommand = "pnpm db:migrate"
+releaseCommand = "npm run db:migrate"
 startCommand = "node dist/main"
 healthcheckPath = "/health"
 healthcheckTimeout = 30

@@ -157,8 +157,8 @@ const buildHtml = (p: RegistrationEmailPayload): string => {
     <tr><td align="center">
       <table width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <tr><td style="background:#111;padding:24px 32px;">
-          <div style="color:#f0bc00;font-weight:900;font-size:24px;letter-spacing:0.5px;">PEJA OUTDOOR</div>
-          <div style="color:#fafafa;font-size:13px;margin-top:4px;">Festival registration confirmed · Regjistrimi është konfirmuar</div>
+          <div style="color:#f0bc00;font-weight:900;font-size:24px;letter-spacing:0.5px;">PEJA OUTDOOR FESTIVAL</div>
+          <div style="color:#fafafa;font-size:13px;margin-top:4px;">Registration confirmed · Regjistrimi është konfirmuar</div>
         </td></tr>
         <tr><td style="padding:32px;">${englishBlock}</td></tr>
         <tr><td style="border-top:1px solid #e5e5e5;padding:0 32px;">
@@ -192,7 +192,7 @@ export class EmailService {
   ): Promise<void> {
     const env = getEnv();
     const client = this.getClient();
-    const subject = `Peja Festival — registered for ${payload.date}`;
+    const subject = `Peja Outdoor Festival — registered for ${payload.date}`;
 
     if (!client || !env.EMAIL_FROM) {
       this.logger.log(

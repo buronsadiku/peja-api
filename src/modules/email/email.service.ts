@@ -2,19 +2,45 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 import { getEnv } from '../../config/env.js';
 
+export type ActivityEmailItem = {
+  name: string;
+  startTime: string;
+  endTime: string;
+  location: string | null;
+  meetingPoint: string | null;
+  address: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  contactPhone1: string | null;
+  contactPhone2: string | null;
+};
+
+export type RegistrationEmailDay = {
+  date: string;
+  dayLabel: string | null;
+  activities: ActivityEmailItem[];
+};
+
 export type RegistrationEmailPayload = {
   to: string;
   name: string;
-  date: string;
-  activities: Array<{
-    name: string;
-    startTime: string;
-    endTime: string;
-    location: string | null;
-    meetingPoint: string | null;
-    contactPhone1: string | null;
-    contactPhone2: string | null;
-  }>;
+  days: RegistrationEmailDay[];
+};
+
+const buildMapsUrl = (a: {
+  latitude: string | null;
+  longitude: string | null;
+  address: string | null;
+  location: string | null;
+}): string | null => {
+  if (a.latitude && a.longitude) {
+    return `https://www.google.com/maps?q=${a.latitude},${a.longitude}`;
+  }
+  const query = a.address ?? a.location;
+  if (query && query.trim()) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+  return null;
 };
 
 const escapeHtml = (s: string): string =>
@@ -25,55 +51,79 @@ const escapeHtml = (s: string): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const formatDateHeader = (date: string, label: string | null): string => {
+  if (label && label.trim()) return `${label} · ${date}`;
+  return date;
+};
+
 const buildText = (p: RegistrationEmailPayload): string => {
   const block = (lang: 'en' | 'sq') => {
     const labels =
       lang === 'sq'
         ? {
             greeting: `Përshëndetje ${p.name},`,
-            intro: `Je regjistruar për ${p.date}. Aktivitetet e tua:`,
+            intro:
+              p.days.length > 1
+                ? `Je regjistruar për ${p.days.length} ditë. Orari yt:`
+                : `Je regjistruar për ${formatDateHeader(p.days[0]?.date ?? '', p.days[0]?.dayLabel ?? null)}. Aktivitetet e tua:`,
             location: 'Vendndodhja',
             meetingPoint: 'Pika e takimit',
+            map: 'Hapni në Google Maps',
             contact: 'Kontakti',
             outro: 'Shihemi në festival!',
             sign: '— Peja Outdoor Festival',
           }
         : {
             greeting: `Hi ${p.name},`,
-            intro: `You are registered for ${p.date}. Your activities:`,
+            intro:
+              p.days.length > 1
+                ? `You are registered for ${p.days.length} days. Your schedule:`
+                : `You are registered for ${formatDateHeader(p.days[0]?.date ?? '', p.days[0]?.dayLabel ?? null)}. Your activities:`,
             location: 'Location',
             meetingPoint: 'Meeting point',
+            map: 'Open in Google Maps',
             contact: 'Contact',
             outro: 'See you at the festival!',
             sign: '— Peja Outdoor Festival',
           };
 
-    const acts = p.activities
-      .map((a) => {
-        const lines = [
-          `  • ${a.name}`,
-          `    ${a.startTime}–${a.endTime}`,
-        ];
-        if (a.location)
-          lines.push(`    ${labels.location}: 📍 ${a.location}`);
-        if (a.meetingPoint)
-          lines.push(`    ${labels.meetingPoint}: 🚩 ${a.meetingPoint}`);
-        const phones = [a.contactPhone1, a.contactPhone2].filter(
-          (v): v is string => Boolean(v && v.trim()),
-        );
-        if (phones.length > 0) {
-          lines.push(`    ${labels.contact}: 📞 ${phones.join(' · ')}`);
-        }
-        return lines.join('\n');
+    const daySections = p.days
+      .map((d) => {
+        const header =
+          p.days.length > 1
+            ? [`▸ ${formatDateHeader(d.date, d.dayLabel)}`, '']
+            : [];
+        const acts = d.activities
+          .map((a) => {
+            const lines = [
+              `  • ${a.name}`,
+              `    ${a.startTime}–${a.endTime}`,
+            ];
+            if (a.location)
+              lines.push(`    ${labels.location}: 📍 ${a.location}`);
+            if (a.meetingPoint)
+              lines.push(`    ${labels.meetingPoint}: 🚩 ${a.meetingPoint}`);
+            const mapsUrl = buildMapsUrl(a);
+            if (mapsUrl) lines.push(`    ${labels.map}: 🗺️ ${mapsUrl}`);
+            const phones = [a.contactPhone1, a.contactPhone2].filter(
+              (v): v is string => Boolean(v && v.trim()),
+            );
+            if (phones.length > 0) {
+              lines.push(`    ${labels.contact}: 📞 ${phones.join(' · ')}`);
+            }
+            return lines.join('\n');
+          })
+          .join('\n');
+        return [...header, acts].join('\n');
       })
-      .join('\n');
+      .join('\n\n');
 
     return [
       labels.greeting,
       '',
       labels.intro,
       '',
-      acts,
+      daySections,
       '',
       labels.outro,
       labels.sign,
@@ -90,65 +140,90 @@ const buildText = (p: RegistrationEmailPayload): string => {
 };
 
 const buildHtml = (p: RegistrationEmailPayload): string => {
-  const renderList = (lang: 'en' | 'sq') => {
+  const renderDays = (lang: 'en' | 'sq') => {
     const labels =
       lang === 'sq'
         ? {
             location: 'Vendndodhja',
             meetingPoint: 'Pika e takimit',
+            map: 'Hapni në Google Maps',
             contact: 'Kontakti',
           }
         : {
             location: 'Location',
             meetingPoint: 'Meeting point',
+            map: 'Open in Google Maps',
             contact: 'Contact',
           };
 
-    return p.activities
-      .map((a) => {
-        const loc = a.location
-          ? `<div style="color:#666;font-size:13px;margin-top:4px;"><strong>${labels.location}:</strong> 📍 ${escapeHtml(a.location)}</div>`
-          : '';
-        const mp = a.meetingPoint
-          ? `<div style="color:#666;font-size:13px;margin-top:2px;"><strong>${labels.meetingPoint}:</strong> 🚩 ${escapeHtml(a.meetingPoint)}</div>`
-          : '';
-        const phones = [a.contactPhone1, a.contactPhone2].filter(
-          (v): v is string => Boolean(v && v.trim()),
-        );
-        const phoneLinks = phones
-          .map(
-            (p) =>
-              `<a href="tel:${escapeHtml(p.replace(/\s+/g, ''))}" style="color:#0066cc;text-decoration:none;">${escapeHtml(p)}</a>`,
-          )
-          .join(' · ');
-        const contact =
-          phones.length > 0
-            ? `<div style="color:#666;font-size:13px;margin-top:2px;"><strong>${labels.contact}:</strong> 📞 ${phoneLinks}</div>`
-            : '';
-        return `
-          <li style="background:#f7f7f5;border-left:4px solid #f0bc00;padding:12px 16px;margin-bottom:10px;border-radius:6px;list-style:none;">
-            <div style="font-weight:700;font-size:15px;color:#111;">${escapeHtml(a.name)}</div>
-            <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(a.startTime)}–${escapeHtml(a.endTime)}</div>
-            ${loc}${mp}${contact}
-          </li>`;
+    return p.days
+      .map((d) => {
+        const items = d.activities
+          .map((a) => {
+            const loc = a.location
+              ? `<div style="color:#666;font-size:13px;margin-top:4px;"><strong>${labels.location}:</strong> 📍 ${escapeHtml(a.location)}</div>`
+              : '';
+            const mp = a.meetingPoint
+              ? `<div style="color:#666;font-size:13px;margin-top:2px;"><strong>${labels.meetingPoint}:</strong> 🚩 ${escapeHtml(a.meetingPoint)}</div>`
+              : '';
+            const mapsUrl = buildMapsUrl(a);
+            const map = mapsUrl
+              ? `<div style="margin-top:8px;"><a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener" style="display:inline-block;background:#f0bc00;color:#111;font-weight:600;font-size:13px;text-decoration:none;padding:8px 14px;border-radius:6px;">🗺️ ${labels.map}</a></div>`
+              : '';
+            const phones = [a.contactPhone1, a.contactPhone2].filter(
+              (v): v is string => Boolean(v && v.trim()),
+            );
+            const phoneLinks = phones
+              .map(
+                (ph) =>
+                  `<a href="tel:${escapeHtml(ph.replace(/\s+/g, ''))}" style="color:#0066cc;text-decoration:none;">${escapeHtml(ph)}</a>`,
+              )
+              .join(' · ');
+            const contact =
+              phones.length > 0
+                ? `<div style="color:#666;font-size:13px;margin-top:2px;"><strong>${labels.contact}:</strong> 📞 ${phoneLinks}</div>`
+                : '';
+            return `
+              <li style="background:#f7f7f5;border-left:4px solid #f0bc00;padding:12px 16px;margin-bottom:10px;border-radius:6px;list-style:none;">
+                <div style="font-weight:700;font-size:15px;color:#111;">${escapeHtml(a.name)}</div>
+                <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(a.startTime)}–${escapeHtml(a.endTime)}</div>
+                ${loc}${mp}${contact}${map}
+              </li>`;
+          })
+          .join('');
+
+        const dayHeader = `
+          <div style="margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid #111;">
+            <div style="font-weight:900;font-size:16px;color:#111;letter-spacing:0.5px;">${escapeHtml(formatDateHeader(d.date, d.dayLabel))}</div>
+          </div>`;
+
+        return `${dayHeader}<ul style="margin:0;padding:0;">${items}</ul>`;
       })
       .join('');
   };
 
   const englishBlock = `
         <p style="margin:0 0 12px;font-size:16px;">Hi ${escapeHtml(p.name)},</p>
-        <p style="margin:0 0 20px;font-size:15px;color:#333;line-height:1.5;">
-          You're registered for <strong>${escapeHtml(p.date)}</strong>. Here's your schedule:
+        <p style="margin:0 0 12px;font-size:15px;color:#333;line-height:1.5;">
+          ${
+            p.days.length > 1
+              ? `You're registered for <strong>${p.days.length} days</strong>. Here's your schedule:`
+              : `You're registered for <strong>${escapeHtml(formatDateHeader(p.days[0]?.date ?? '', p.days[0]?.dayLabel ?? null))}</strong>. Here's your schedule:`
+          }
         </p>
-        <ul style="margin:0;padding:0;">${renderList('en')}</ul>
+        ${renderDays('en')}
         <p style="margin:24px 0 0;font-size:14px;color:#555;">See you at the festival!</p>`;
 
   const albanianBlock = `
         <p style="margin:0 0 12px;font-size:16px;">Përshëndetje ${escapeHtml(p.name)},</p>
-        <p style="margin:0 0 20px;font-size:15px;color:#333;line-height:1.5;">
-          Je regjistruar për <strong>${escapeHtml(p.date)}</strong>. Ja orari yt:
+        <p style="margin:0 0 12px;font-size:15px;color:#333;line-height:1.5;">
+          ${
+            p.days.length > 1
+              ? `Je regjistruar për <strong>${p.days.length} ditë</strong>. Ja orari yt:`
+              : `Je regjistruar për <strong>${escapeHtml(formatDateHeader(p.days[0]?.date ?? '', p.days[0]?.dayLabel ?? null))}</strong>. Ja orari yt:`
+          }
         </p>
-        <ul style="margin:0;padding:0;">${renderList('sq')}</ul>
+        ${renderDays('sq')}
         <p style="margin:24px 0 0;font-size:14px;color:#555;">Shihemi në festival!</p>`;
 
   return `<!doctype html>
@@ -190,9 +265,13 @@ export class EmailService {
   async sendRegistrationConfirmation(
     payload: RegistrationEmailPayload,
   ): Promise<void> {
+    if (payload.days.length === 0) return;
     const env = getEnv();
     const client = this.getClient();
-    const subject = `Peja Outdoor Festival — registered for ${payload.date}`;
+    const subject =
+      payload.days.length > 1
+        ? `Peja Outdoor Festival — registered for ${payload.days.length} days`
+        : `Peja Outdoor Festival — registered for ${payload.days[0].date}`;
 
     if (!client || !env.EMAIL_FROM) {
       this.logger.log(

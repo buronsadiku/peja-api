@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
+  createRegistrationBatchSchema,
   createRegistrationSchema,
+  type CreateRegistrationBatchDto,
   type CreateRegistrationDto,
 } from './registrations.dto.js';
 import { RegistrationsService } from './registrations.service.js';
@@ -22,6 +24,12 @@ export class RegistrationsController {
   @UsePipes(new ZodValidationPipe(createRegistrationSchema))
   async create(@Body() body: CreateRegistrationDto) {
     return { data: await this.registrations.create(body) };
+  }
+
+  @Post('batch')
+  @UsePipes(new ZodValidationPipe(createRegistrationBatchSchema))
+  async createBatch(@Body() body: CreateRegistrationBatchDto) {
+    return { data: await this.registrations.createBatch(body) };
   }
 
   @Get('lookup')

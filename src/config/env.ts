@@ -37,6 +37,10 @@ export const envSchema = z.object({
   // internal calls to /v1/internal/uploads/*. Required for image upload.
   INTERNAL_UPLOAD_TOKEN: z.string().min(16).optional(),
 
+  // Shared secret used by peja-web admin for internal API calls like
+  // bulk reminder emails (/v1/internal/registrations/*).
+  INTERNAL_API_TOKEN: z.string().min(16).optional(),
+
   // Transcription (OpenAI Whisper)
   OPENAI_API_KEY: z.string().optional(),
 

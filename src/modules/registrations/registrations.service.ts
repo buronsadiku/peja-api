@@ -161,6 +161,167 @@ export class RegistrationsService {
     };
   }
 
+  async reminderRecipientsCount(): Promise<{
+    recipients: number;
+    totalRegistrations: number;
+  }> {
+    const groups = await this.loadRegistrationsGroupedByEmail();
+    const totalRegistrations = groups.reduce(
+      (n, g) => n + g.days.reduce((m, d) => m + d.activities.length, 0),
+      0,
+    );
+    return { recipients: groups.length, totalRegistrations };
+  }
+
+  async sendReminders(): Promise<{
+    recipients: number;
+    sent: number;
+    failed: number;
+  }> {
+    const groups = await this.loadRegistrationsGroupedByEmail();
+    let sent = 0;
+    let failed = 0;
+    for (const g of groups) {
+      const { ok } = await this.email.sendRegistrationReminder({
+        to: g.email,
+        name: g.fullName,
+        days: g.days,
+      });
+      if (ok) sent += 1;
+      else failed += 1;
+    }
+    return { recipients: groups.length, sent, failed };
+  }
+
+  private async loadRegistrationsGroupedByEmail(): Promise<
+    Array<{
+      email: string;
+      fullName: string;
+      days: RegistrationEmailDay[];
+    }>
+  > {
+    const rows = await this.db
+      .select({
+        email: registrations.email,
+        fullName: registrations.fullName,
+        createdAt: registrations.createdAt,
+        date: festivalDays.date,
+        dayLabel: festivalDays.label,
+        festivalDayId: festivalDays.id,
+        festivalDayOrder: festivalDays.sortOrder,
+        occurrenceId: activityOccurrences.id,
+        startTime: activityOccurrences.startTime,
+        endTime: activityOccurrences.endTime,
+        location: activityOccurrences.location,
+        meetingPoint: activityOccurrences.meetingPoint,
+        address: activityOccurrences.address,
+        latitude: activityOccurrences.latitude,
+        longitude: activityOccurrences.longitude,
+        templateName: activityTemplates.nameEn,
+        contactPhone1: activityTemplates.contactPhone1,
+        contactPhone2: activityTemplates.contactPhone2,
+      })
+      .from(registrations)
+      .innerJoin(
+        registrationActivities,
+        eq(registrationActivities.registrationId, registrations.id),
+      )
+      .innerJoin(
+        activityOccurrences,
+        eq(activityOccurrences.id, registrationActivities.occurrenceId),
+      )
+      .innerJoin(
+        activityTemplates,
+        eq(activityTemplates.id, activityOccurrences.templateId),
+      )
+      .innerJoin(
+        festivalDays,
+        eq(festivalDays.id, activityOccurrences.festivalDayId),
+      );
+
+    type Group = {
+      email: string;
+      fullName: string;
+      latestCreatedAt: Date;
+      byDay: Map<
+        string,
+        {
+          date: string;
+          dayLabel: string | null;
+          dayOrder: number | null;
+          startTimes: Map<string, RegistrationEmailDay['activities'][number]>;
+        }
+      >;
+    };
+
+    const byEmail = new Map<string, Group>();
+
+    for (const r of rows) {
+      const emailKey = r.email.toLowerCase();
+      let g = byEmail.get(emailKey);
+      if (!g) {
+        g = {
+          email: r.email,
+          fullName: r.fullName,
+          latestCreatedAt: r.createdAt as Date,
+          byDay: new Map(),
+        };
+        byEmail.set(emailKey, g);
+      } else if (
+        (r.createdAt as Date).getTime() > g.latestCreatedAt.getTime()
+      ) {
+        g.fullName = r.fullName;
+        g.latestCreatedAt = r.createdAt as Date;
+      }
+
+      let day = g.byDay.get(r.festivalDayId);
+      if (!day) {
+        day = {
+          date: r.date,
+          dayLabel: r.dayLabel,
+          dayOrder: r.festivalDayOrder ?? null,
+          startTimes: new Map(),
+        };
+        g.byDay.set(r.festivalDayId, day);
+      }
+      if (!day.startTimes.has(r.occurrenceId)) {
+        day.startTimes.set(r.occurrenceId, {
+          name: r.templateName,
+          startTime: r.startTime,
+          endTime: r.endTime,
+          location: r.location,
+          meetingPoint: r.meetingPoint,
+          address: r.address,
+          latitude: r.latitude,
+          longitude: r.longitude,
+          contactPhone1: r.contactPhone1,
+          contactPhone2: r.contactPhone2,
+        });
+      }
+    }
+
+    return Array.from(byEmail.values())
+      .map((g) => ({
+        email: g.email,
+        fullName: g.fullName,
+        days: Array.from(g.byDay.values())
+          .sort((a, b) => {
+            const oa = a.dayOrder ?? Number.MAX_SAFE_INTEGER;
+            const ob = b.dayOrder ?? Number.MAX_SAFE_INTEGER;
+            if (oa !== ob) return oa - ob;
+            return a.date.localeCompare(b.date);
+          })
+          .map((d) => ({
+            date: d.date,
+            dayLabel: d.dayLabel,
+            activities: Array.from(d.startTimes.values()).sort((a, b) =>
+              a.startTime.localeCompare(b.startTime),
+            ),
+          })),
+      }))
+      .sort((a, b) => a.email.localeCompare(b.email));
+  }
+
   async lookupByEmail(email: string) {
     const [row] = await this.db
       .select({

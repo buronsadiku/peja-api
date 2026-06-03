@@ -45,6 +45,8 @@ const buildMapsUrl = (a: {
   return null;
 };
 
+const formatTime = (s: string): string => (s ? s.slice(0, 5) : s);
+
 const escapeHtml = (s: string): string =>
   s
     .replace(/&/g, '&amp;')
@@ -99,7 +101,7 @@ const buildText = (p: RegistrationEmailPayload): string => {
           .map((a) => {
             const lines = [
               `  • ${a.name}`,
-              `    ${a.startTime}–${a.endTime}`,
+              `    ${formatTime(a.startTime)}–${formatTime(a.endTime)}`,
             ];
             if (a.location)
               lines.push(`    ${labels.location}: 📍 ${a.location}`);
@@ -188,7 +190,7 @@ const buildHtml = (p: RegistrationEmailPayload): string => {
             return `
               <li style="background:#f7f7f5;border-left:4px solid #f0bc00;padding:12px 16px;margin-bottom:10px;border-radius:6px;list-style:none;">
                 <div style="font-weight:700;font-size:15px;color:#111;">${escapeHtml(a.name)}</div>
-                <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(a.startTime)}–${escapeHtml(a.endTime)}</div>
+                <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(formatTime(a.startTime))}–${escapeHtml(formatTime(a.endTime))}</div>
                 ${loc}${mp}${contact}${map}
               </li>`;
           })
@@ -276,7 +278,10 @@ const renderReminderTextDays = (
         days.length > 1 ? [`▸ ${formatDateHeader(d.date, d.dayLabel)}`, ''] : [];
       const acts = d.activities
         .map((a) => {
-          const lines = [`  • ${a.name}`, `    ${a.startTime}–${a.endTime}`];
+          const lines = [
+            `  • ${a.name}`,
+            `    ${formatTime(a.startTime)}–${formatTime(a.endTime)}`,
+          ];
           if (a.location)
             lines.push(`    ${labels.location}: 📍 ${a.location}`);
           if (a.meetingPoint)
@@ -388,7 +393,7 @@ const buildReminderHtml = (p: RegistrationEmailPayload): string => {
             return `
               <li style="background:#f7f7f5;border-left:4px solid #f0bc00;padding:12px 16px;margin-bottom:10px;border-radius:6px;list-style:none;">
                 <div style="font-weight:700;font-size:15px;color:#111;">${escapeHtml(a.name)}</div>
-                <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(a.startTime)}–${escapeHtml(a.endTime)}</div>
+                <div style="color:#444;font-size:13px;margin-top:4px;">${escapeHtml(formatTime(a.startTime))}–${escapeHtml(formatTime(a.endTime))}</div>
                 ${loc}${mp}${contact}${map}
               </li>`;
           })

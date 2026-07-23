@@ -39,10 +39,11 @@ export class GalleryController {
     @Query('limit') limit?: string,
     @Query('showOnLanding') showOnLanding?: string,
   ) {
+    const parsedYear = year ? parseInt(year, 10) : undefined;
     return this.gallery.list({
       section,
       subcategory,
-      year: year ? parseInt(year, 10) : undefined,
+      year: Number.isFinite(parsedYear) ? parsedYear : undefined,
       page: page ? parseInt(page, 10) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
       showOnLanding: parseBool(showOnLanding),

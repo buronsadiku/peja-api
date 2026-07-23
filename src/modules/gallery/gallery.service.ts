@@ -5,14 +5,13 @@ import type { DrizzleDB } from '../../database/database.types.js';
 import {
   galleryCategories,
   galleryImages,
-  gallerySubcategories,
+  galleryYears,
 } from '../../database/schema/index.js';
 
 export type GallerySection = string;
 
 export type ListOptions = {
   section?: GallerySection;
-  subcategory?: string;
   year?: number;
   page?: number;
   limit?: number;
@@ -25,7 +24,6 @@ export class GalleryService {
 
   async list({
     section,
-    subcategory,
     year,
     page = 1,
     limit = 20,
@@ -39,7 +37,6 @@ export class GalleryService {
     if (section) filters.push(eq(galleryImages.section, section));
     if (typeof showOnLanding === 'boolean')
       filters.push(eq(galleryImages.showOnLanding, showOnLanding));
-    if (subcategory) filters.push(eq(galleryImages.subcategory, subcategory));
     if (typeof year === 'number') filters.push(eq(galleryImages.year, year));
     const where = filters.length ? and(...filters) : undefined;
 
@@ -86,42 +83,11 @@ export class GalleryService {
     }));
   }
 
-  async listYears(): Promise<number[]> {
-    const rows = await this.db
-      .selectDistinct({ year: galleryImages.year })
-      .from(galleryImages)
-      .orderBy(desc(galleryImages.year));
-    return rows.map((r) => r.year);
-  }
-
-  async listSubcategories(locale?: string) {
+  async listYears(): Promise<Array<{ year: number; label: string | null }>> {
     const rows = await this.db
       .select()
-      .from(gallerySubcategories)
-      .orderBy(
-        asc(gallerySubcategories.sortOrder),
-        asc(gallerySubcategories.labelEn),
-      );
-    const useSq = locale === 'sq';
-    return rows.map((row) => ({
-      id: row.id,
-      value: row.value,
-      label: useSq && row.labelSq ? row.labelSq : row.labelEn,
-      categoryValue: row.categoryValue,
-      sortOrder: row.sortOrder,
-    }));
-  }
-
-  async listTaxonomy(locale?: string) {
-    const cats = await this.listCategories(locale);
-    const subs = await this.listSubcategories(locale);
-    return cats.map((c) => ({
-      value: c.value,
-      label: c.label,
-      sortOrder: c.sortOrder,
-      subcategories: subs
-        .filter((s) => s.categoryValue === c.value)
-        .map((s) => ({ value: s.value, label: s.label, sortOrder: s.sortOrder })),
-    }));
+      .from(galleryYears)
+      .orderBy(desc(galleryYears.year), asc(galleryYears.sortOrder));
+    return rows.map((row) => ({ year: row.year, label: row.label }));
   }
 }

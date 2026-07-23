@@ -23,7 +23,6 @@ export const galleryImages = pgTable(
     sortOrder: integer('sort_order').notNull().default(0),
     showOnLanding: boolean('show_on_landing').notNull().default(false),
     year: integer('year').notNull().default(2026),
-    subcategory: text('subcategory'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

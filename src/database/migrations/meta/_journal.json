@@ -78,6 +78,13 @@
       "when": 1778257900000,
       "tag": "0010_gallery_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778258000000,
+      "tag": "0012_gallery_years",
+      "breakpoints": true
     }
   ]
 }

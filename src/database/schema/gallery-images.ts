@@ -22,6 +22,8 @@ export const galleryImages = pgTable(
     section: text('section').notNull(),
     sortOrder: integer('sort_order').notNull().default(0),
     showOnLanding: boolean('show_on_landing').notNull().default(false),
+    year: integer('year').notNull().default(2026),
+    subcategory: text('subcategory'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -33,6 +35,7 @@ export const galleryImages = pgTable(
     index('idx_gallery_images_section').on(table.section),
     index('idx_gallery_images_sort').on(table.sortOrder),
     index('idx_gallery_images_show_on_landing').on(table.showOnLanding),
+    index('idx_gallery_images_year').on(table.year),
   ],
 );
 

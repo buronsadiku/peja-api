@@ -7,6 +7,7 @@ export * from './registrations.js';
 export * from './registration-activities.js';
 export * from './gallery-images.js';
 export * from './gallery-categories.js';
+export * from './gallery-subcategories.js';
 export * from './news-posts.js';
 export * from './sponsors.js';
 export * from './communities.js';

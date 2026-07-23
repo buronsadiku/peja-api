@@ -18,15 +18,31 @@ export class GalleryController {
     return { data };
   }
 
+  @Get('years')
+  async years() {
+    const data = await this.gallery.listYears();
+    return { data };
+  }
+
+  @Get('taxonomy')
+  async taxonomy(@Query('locale') locale?: string) {
+    const data = await this.gallery.listTaxonomy(locale);
+    return { data };
+  }
+
   @Get()
   async list(
     @Query('section') section?: GallerySection,
+    @Query('subcategory') subcategory?: string,
+    @Query('year') year?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('showOnLanding') showOnLanding?: string,
   ) {
     return this.gallery.list({
       section,
+      subcategory,
+      year: year ? parseInt(year, 10) : undefined,
       page: page ? parseInt(page, 10) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
       showOnLanding: parseBool(showOnLanding),
